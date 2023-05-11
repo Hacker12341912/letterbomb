@@ -61,7 +61,6 @@ def region():
         return 'E'
 
 def _index(error=None):
-    g.recaptcha_args = 'k=%s' % app.config['RECAPTCHA_PUBLICKEY']
     rs = make_response(render_template('index.html', region=region(), error=error))
     #rs.headers['Cache-Control'] = 'private, max-age=0, no-store, no-cache, must-revalidate'
     #rs.headers['Etag'] = str(random.randrange(2**64))
@@ -74,40 +73,9 @@ def index():
     return _index()
 
 
-def captcha_check():
-    try:
-        oform = {
-            #"privatekey": app.config['RECAPTCHA_PRIVATEKEY'],
-            "secret": app.config['RECAPTCHA_PRIVATEKEY'],
-            "remoteip": request.remote_addr,
-            #"challenge": request.form.get('recaptcha_challenge_field',['']),
-            #"response": request.form.get('recaptcha_response_field',[''])
-            "response": request.form.get('g-recaptcha-response',[''])
-        }
-        #f = urllib.urlopen("http://api-verify.recaptcha.net/verify", urllib.urlencode(oform))
-        f = urllib.request.urlopen("https://www.google.com/recaptcha/api/siteverify", urllib.parse.urlencode(oform).encode("utf-8"))
-
-        #result = f.readline().replace("\n","")
-        #error = f.readline().replace("\n","")
-        d = json.load(f)
-        result = d["success"]
-        f.close()
-
-        if not result:#  != 'true':
-            #if error != 'incorrect-captcha-sol':
-            app.logger.info("ReCaptcha fail: %r, %r", oform, d)
-            #g.recaptcha_args += "&error=" + error
-            return False
-
-    except:
-        #g.recaptcha_args += "&error=unknown"
-        return False
-    return True
-
 @app.route('/haxx', methods=["POST"])
 def haxx():
     OUI_LIST = [bytes.fromhex(i) for i in open(os.path.join(app.root_path, 'oui_list.txt')).read().split("\n") if len(i) == 6]
-    g.recaptcha_args = 'k=%s' % app.config['RECAPTCHA_PUBLICKEY']
     dt = datetime.utcnow() - timedelta(1)
     delta = (dt - datetime(2000, 1, 1))
     timestamp = delta.days * 86400 + delta.seconds
@@ -117,8 +85,6 @@ def haxx():
         bundle = 'bundle' in request.form
     except:
         return _index("Invalid input.")
-    if not captcha_check():
-        return _index("Are you a human?")
 
     if mac == b"\x00\x17\xab\x99\x99\x99":
         app.logger.info('Derp MAC %s at %d ver %s bundle %r', mac.hex(), timestamp, request.form['region'], bundle)

@@ -4,7 +4,6 @@
 	<title>LetterBomb</title>
 	<link rel="stylesheet" type="text/css" href="/static/mac.css" />
 	<script type="text/javascript">
-		captcha_passed = false;
 		function keyHandler(e, obj, next) {
 			if (window.event) { // IE
 				keynum = e.keyCode;
@@ -28,7 +27,7 @@
 					return false;
 				}
 			}
-			return captcha_passed;
+			return true;
 		}
 		function update() {
 			var ok = check();
@@ -40,14 +39,6 @@
 				document.getElementById(next).value = '';
 				document.getElementById(next).focus();
 			}
-			update();
-		}
-		function captcha_ok() {
-			captcha_passed = true;
-			update();
-		}
-		function captcha_expired() {
-			captcha_passed = false;
 			update();
 		}
 	</script>
@@ -77,10 +68,6 @@
 	<p>
 		<input type='checkbox' name='bundle' value='1' checked /> <b>Bundle the HackMii Installer for me!</b>
 	</p>
-	<div style="float: center; display: inline-block;" class="recaptcha">
-		<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-		<div class="g-recaptcha" data-sitekey="{{ config.RECAPTCHA_PUBLICKEY }}" data-callback="captcha_ok" data-expired-callback="captcha_expired"></div>
-	</div>
 {% if error %}
 	<div style="color: red; font-weight: bold; font-size: 18pt;">{{ error }}</div>
 {% endif %}

@@ -78,9 +78,23 @@ def region():
         app.logger.exception("GeoIP exception")
         return "E"
 
+def count_unique_letterbombs(path="./log/info.log"):
+    res = []
+    with open(path) as logfile:
+        for line in logfile.readlines():
+            try:
+                loc = line.find("LetterBombed")
+                if loc == -1:
+                    continue
+                ip = line[:loc].split("] [")[1]
+                mac = line[loc:].split(" ")[1]
+                res.append(ip + mac)
+            except:
+                pass
+    return len(set(res))
 
-def _index(error=None):
-    rs = make_response(render_template("index.html", region=region(), error=error))
+def _index(error=None, num_lb=None):
+    rs = make_response(render_template("index.html", region=region(), error=error, num_lb=count_unique_letterbombs()))
     # rs.headers['Cache-Control'] = 'private, max-age=0, no-store, no-cache, must-revalidate'
     # rs.headers['Etag'] = str(random.randrange(2**64))
     rs.headers["Expires"] = "Thu, 01 Dec 1983 20:00:00 GMT"

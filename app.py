@@ -5,6 +5,9 @@ from logging.handlers import SMTPHandler
 from datetime import datetime, timedelta
 from flask import Flask, request, g, render_template, make_response, redirect, url_for
 
+COUNT_CACHE_AGE = 60
+counter_cache = (datetime(1999, 1, 1), -1)
+
 app = Flask(__name__)
 app.config.from_object("config")
 
@@ -46,6 +49,9 @@ if not app.debug:
 
 
 def count_unique_letterbombs(path="./log/info.log"):
+    global counter_cache
+    if (datetime.now() - counter_cache[0]).total_seconds() < COUNT_CACHE_AGE:
+        return counter_cache[1]
     res = []
     with open(path) as logfile:
         for line in logfile.readlines():
@@ -58,9 +64,11 @@ def count_unique_letterbombs(path="./log/info.log"):
                 res.append(ip + mac)
             except:
                 pass
-    return len(set(res))
+    res = len(set(res))
+    counter_cache = (datetime.now(), res)
+    return res
 
-def _index(error=None, num_lb=None):
+def _index(error=None):
     rs = make_response(render_template("index.html", region="U", error=error, num_lb=count_unique_letterbombs()))
     rs.headers["Expires"] = "Thu, 01 Dec 1983 20:00:00 GMT"
     return rs

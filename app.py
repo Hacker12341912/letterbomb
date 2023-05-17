@@ -20,6 +20,7 @@ TEMPLATES = {
 
 BUNDLEBASE = os.path.join(app.root_path, "bundle")
 
+
 class RequestFormatter(logging.Formatter):
     def format(self, record):
         s = logging.Formatter.format(self, record)
@@ -68,8 +69,11 @@ def count_unique_letterbombs(path="./log/info.log"):
     counter_cache = (datetime.now(), res)
     return res
 
+
 def _index(error=None):
-    rs = make_response(render_template("index.html", region="U", error=error, num_lb=count_unique_letterbombs()))
+    rs = make_response(
+        render_template("index.html", region="U", error=error, num_lb=count_unique_letterbombs())
+    )
     rs.headers["Expires"] = "Thu, 01 Dec 1983 20:00:00 GMT"
     return rs
 

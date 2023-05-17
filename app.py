@@ -16,17 +16,6 @@ TEMPLATES = {
 }
 
 BUNDLEBASE = os.path.join(app.root_path, "bundle")
-COUNTRY_REGIONS = dict(
-    [l.split(" ") for l in open(os.path.join(app.root_path, "country_regions.txt")).read().split("\n") if l]
-)
-
-try:
-    import geoip2.database, geoip2.errors
-
-    gi = geoip2.database.Reader("/usr/share/GeoIP/GeoLite2-Country.mmdb")
-except ImportError:
-    gi = None
-
 
 class RequestFormatter(logging.Formatter):
     def format(self, record):
@@ -47,15 +36,6 @@ class RequestFormatter(logging.Formatter):
 
 
 if not app.debug:
-    mail_handler = SMTPHandler(
-        app.config["SMTP_SERVER"],
-        app.config["APP_EMAIL"],
-        app.config["ADMIN_EMAIL"],
-        "LetterBomb ERROR",
-    )
-    mail_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(mail_handler)
-
     handler = logging.FileHandler(os.path.join(app.root_path, "log", "info.log"))
     handler.setLevel(logging.INFO)
     handler.setFormatter(RequestFormatter())
@@ -64,19 +44,6 @@ if not app.debug:
     app.logger.setLevel(logging.INFO)
     app.logger.warning("Starting...")
 
-
-def region():
-    if gi is None:
-        return "E"
-    try:
-        country = gi.country(request.remote_addr).country.iso_code
-        app.logger.info("GI: %s -> %s", request.remote_addr, country)
-        return COUNTRY_REGIONS.get(country, "E")
-    except geoip2.errors.AddressNotFoundError:
-        return "E"
-    except:
-        app.logger.exception("GeoIP exception")
-        return "E"
 
 def count_unique_letterbombs(path="./log/info.log"):
     res = []
@@ -94,9 +61,7 @@ def count_unique_letterbombs(path="./log/info.log"):
     return len(set(res))
 
 def _index(error=None, num_lb=None):
-    rs = make_response(render_template("index.html", region=region(), error=error, num_lb=count_unique_letterbombs()))
-    # rs.headers['Cache-Control'] = 'private, max-age=0, no-store, no-cache, must-revalidate'
-    # rs.headers['Etag'] = str(random.randrange(2**64))
+    rs = make_response(render_template("index.html", region="U", error=error, num_lb=count_unique_letterbombs()))
     rs.headers["Expires"] = "Thu, 01 Dec 1983 20:00:00 GMT"
     return rs
 

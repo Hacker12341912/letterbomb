@@ -4,11 +4,13 @@ from io import BytesIO
 from logging.handlers import SMTPHandler
 from datetime import datetime, timedelta
 from flask import Flask, request, g, render_template, make_response, redirect, url_for
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 COUNT_CACHE_AGE = 60
 counter_cache = (datetime(1999, 1, 1), -1)
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 app.config.from_object("config")
 
 TEMPLATES = {

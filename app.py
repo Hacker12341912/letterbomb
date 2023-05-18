@@ -60,9 +60,8 @@ def count_unique_letterbombs(path="./log/info.log"):
                 loc = line.find("LetterBombed")
                 if loc == -1:
                     continue
-                ip = line[:loc].split("] [")[1]
                 mac = line[loc:].split(" ")[1]
-                res.append(ip + mac)
+                res.append(mac)
             except:
                 pass
     res = len(set(res))

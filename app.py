@@ -5,6 +5,8 @@ from logging.handlers import SMTPHandler
 from datetime import datetime, timedelta
 from flask import Flask, request, g, render_template, make_response, redirect, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 COUNT_CACHE_AGE = 60
 counter_cache = (datetime(1999, 1, 1), -1)
@@ -12,6 +14,13 @@ counter_cache = (datetime(1999, 1, 1), -1)
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 app.config.from_object("config")
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],
+    storage_uri="memory://",
+)
 
 TEMPLATES = {
     "U": "templateU.bin",
@@ -80,11 +89,13 @@ def _index(error=None):
 
 
 @app.route("/")
+@limiter.limit("100/minute")
 def index():
     return _index()
 
 
 @app.route("/haxx", methods=["POST"])
+@limiter.limt("3/minute")
 def haxx():
     OUI_LIST = [
         bytes.fromhex(i)

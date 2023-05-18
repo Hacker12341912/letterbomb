@@ -1,7 +1,7 @@
 ## LetterBomb web service implementation
 
 This is the LetterBomb Wii System Menu 4.3 exploit implementation running on
-https://letterbomb.andrewtech.net/. Requires Python 3.7+ and Flask.
+https://letterbomb.andrewtech.net/. Requires Python 3.7+, Flask, and Flask-Limiter.
 
 This does not include the HackMii Installer bundle. Those files would go
 in `bundle/`.

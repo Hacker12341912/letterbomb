@@ -8,11 +8,11 @@ in `bundle/`.
 
 ### Differences from please.hackmii.com
 
- * No captcha: I don't find it necessary and choose to implement rate limiting and anti-abuse controls in my server software instead
+ * ~~No captcha: I don't find it necessary and choose to implement rate limiting and anti-abuse controls in my server software instead~~ Looks like there's no more captcha (for now)
  * No Geo-IP detection: People *can* figure it out
  * Counter: Counts the number of unique LetterBombs performed based on the log file
  * Reverse proxy fixup: Application is reverse proxy aware, beware this may be a security issues if not using one!
- * Currently working :)
+ * ~~Currently working :)~~ Seems like they got it up again.
 
 
 ### License
